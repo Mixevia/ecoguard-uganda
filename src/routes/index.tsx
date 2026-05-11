@@ -280,22 +280,71 @@ function HowItWorks() {
             </div>
           </div>
 
-          {/* Phases column */}
+          {/* Phases column — interactive tabs */}
           <div className="lg:col-span-7">
+            <div role="tablist" aria-label="Method phases" className="flex flex-wrap gap-2 mb-6">
+              {PHASES.map((p, i) => {
+                const isActive = i === activePhase;
+                return (
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    key={p.id}
+                    onClick={() => setActivePhase(i)}
+                    className={`px-5 py-3 rounded-full font-mono text-[10px] tracking-[0.3em] uppercase border transition-all duration-300 ${
+                      isActive
+                        ? "border-phosphor/60 bg-phosphor/10 text-phosphor shadow-[0_0_0_1px_oklch(0.83_0.19_152/0.4)]"
+                        : "border-border text-foreground/60 hover:border-phosphor/30 hover:text-foreground"
+                    }`}
+                  >
+                    <span className="mr-2 opacity-70">{p.id}</span>
+                    {p.t}
+                  </button>
+                );
+              })}
+            </div>
+
             <div className="card-grid grid sm:grid-cols-2 gap-6">
-              {PHASES.map((p) => (
-                <article
-                  key={p.id}
-                  className="feature-card frosted rounded-2xl p-8 transition-all duration-220 hover:-translate-y-2 hover:shadow-[0_24px_48px_rgba(61,219,133,0.08)] group"
-                >
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-mono text-[11px] tracking-[0.3em] text-phosphor">{p.id}</span>
-                    <span className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground uppercase">phase</span>
-                  </div>
-                  <h3 className="font-display text-3xl md:text-4xl mt-6">{p.t}</h3>
-                  <p className="mt-4 text-foreground/70 leading-relaxed">{p.d}</p>
-                </article>
-              ))}
+              {PHASES.map((p, i) => {
+                const isActive = i === activePhase;
+                return (
+                  <article
+                    key={p.id}
+                    onClick={() => setActivePhase(i)}
+                    className={`feature-card cursor-pointer frosted rounded-2xl p-8 transition-all duration-300 ${
+                      isActive
+                        ? "border border-phosphor/50 -translate-y-1 shadow-[0_24px_48px_rgba(61,219,133,0.15)]"
+                        : "border border-transparent hover:-translate-y-1 hover:border-phosphor/20"
+                    }`}
+                  >
+                    <div className="flex items-baseline justify-between">
+                      <span className="font-mono text-[11px] tracking-[0.3em] text-phosphor">{p.id}</span>
+                      <span className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground uppercase">phase</span>
+                    </div>
+                    <h3 className="font-display text-3xl md:text-4xl mt-6">{p.t}</h3>
+                    <p className="mt-4 text-foreground/70 leading-relaxed">{p.d}</p>
+                  </article>
+                );
+              })}
+            </div>
+
+            <div
+              role="tabpanel"
+              key={PHASES[activePhase].id}
+              className="mt-6 frosted rounded-2xl p-8 border border-phosphor/30"
+            >
+              <div className="flex items-baseline justify-between mb-4">
+                <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-phosphor">
+                  / Detail · {PHASES[activePhase].id}
+                </div>
+                <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-foreground/70">
+                  {PHASES[activePhase].metric}
+                </div>
+              </div>
+              <p className="text-foreground/85 leading-relaxed text-lg">
+                {PHASES[activePhase].detail}
+              </p>
             </div>
           </div>
         </div>
