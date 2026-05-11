@@ -197,21 +197,46 @@ function Crisis() {
 
 /* ─────────── CH 02 — HOW IT WORKS ─────────── */
 const PHASES = [
-  { id: "02/A", t: "Report",  d: "Citizens upload geo-tagged photos and short notes from anywhere in Uganda — even offline, syncing when signal returns." },
-  { id: "02/B", t: "Verify",  d: "Trained field agents validate every report. Satellite imagery cross-checks claims within minutes, not weeks." },
-  { id: "02/C", t: "Respond", d: "Verified threats route to district authorities and ranger units. Action logs are public and immutable." },
-  { id: "02/D", t: "Track",   d: "Every intervention enters an open impact timeline — what was reported, what was done, what changed." },
+  {
+    id: "02/A", t: "Report",
+    d: "Citizens upload geo-tagged photos and short notes from anywhere in Uganda — even offline, syncing when signal returns.",
+    detail: "An offline-first PWA captures incident type, GPS coordinates, time, and up to four photos. Reports queue locally and sync over any signal — 2G included. No app store, no friction.",
+    metric: "< 30s avg. capture time",
+  },
+  {
+    id: "02/B", t: "Verify",
+    d: "Trained field agents validate every report. Satellite imagery cross-checks claims within minutes, not weeks.",
+    detail: "Each submission is triaged against Sentinel-2 and Planet imagery, then routed to the nearest trained guardian for ground-truthing. Duplicates collapse automatically.",
+    metric: "94% verification accuracy",
+  },
+  {
+    id: "02/C", t: "Respond",
+    d: "Verified threats route to district authorities and ranger units. Action logs are public and immutable.",
+    detail: "Verified incidents fan out to NEMA officers, district environment officers, and partner ranger units. Every action — dispatch, intervention, citation — is logged on a public ledger.",
+    metric: "Avg. response: 36 hours",
+  },
+  {
+    id: "02/D", t: "Track",
+    d: "Every intervention enters an open impact timeline — what was reported, what was done, what changed.",
+    detail: "Resolved cases enter a permanent timeline with before/after geotagged imagery, restoration metrics, and partner attribution. Open data, exportable as CSV or GeoJSON.",
+    metric: "1,200+ closed cases",
+  },
 ];
 
 function HowItWorks() {
   const ref = useRef<HTMLDivElement>(null);
+  const [activePhase, setActivePhase] = useState(0);
   useEffect(() => {
     if (!ref.current) return;
     const ctx = gsap.context(() => {
-      gsap.from(ref.current!.querySelectorAll(".feature-card"), {
-        y: 40, opacity: 0, stagger: 0.1, duration: 0.6, ease: "power2.out",
-        scrollTrigger: { trigger: ref.current!.querySelector(".card-grid"), start: "top 82%" },
-      });
+      gsap.fromTo(
+        ref.current!.querySelectorAll(".feature-card"),
+        { y: 30, opacity: 0 },
+        {
+          y: 0, opacity: 1, stagger: 0.08, duration: 0.6, ease: "power2.out",
+          scrollTrigger: { trigger: ref.current!.querySelector(".card-grid"), start: "top 90%", once: true },
+        }
+      );
     }, ref);
     return () => ctx.revert();
   }, []);
