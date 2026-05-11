@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 
 export function Preloader() {
-  const [show, setShow] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return !sessionStorage.getItem("eco_preloaded");
-  });
+  const [show, setShow] = useState(false);
   const [hiding, setHiding] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("eco_preloaded")) return;
+    setShow(true);
+  }, []);
 
   useEffect(() => {
     if (!show) return;
