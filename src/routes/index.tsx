@@ -197,21 +197,46 @@ function Crisis() {
 
 /* ─────────── CH 02 — HOW IT WORKS ─────────── */
 const PHASES = [
-  { id: "02/A", t: "Report",  d: "Citizens upload geo-tagged photos and short notes from anywhere in Uganda — even offline, syncing when signal returns." },
-  { id: "02/B", t: "Verify",  d: "Trained field agents validate every report. Satellite imagery cross-checks claims within minutes, not weeks." },
-  { id: "02/C", t: "Respond", d: "Verified threats route to district authorities and ranger units. Action logs are public and immutable." },
-  { id: "02/D", t: "Track",   d: "Every intervention enters an open impact timeline — what was reported, what was done, what changed." },
+  {
+    id: "02/A", t: "Report",
+    d: "Citizens upload geo-tagged photos and short notes from anywhere in Uganda — even offline, syncing when signal returns.",
+    detail: "An offline-first PWA captures incident type, GPS coordinates, time, and up to four photos. Reports queue locally and sync over any signal — 2G included. No app store, no friction.",
+    metric: "< 30s avg. capture time",
+  },
+  {
+    id: "02/B", t: "Verify",
+    d: "Trained field agents validate every report. Satellite imagery cross-checks claims within minutes, not weeks.",
+    detail: "Each submission is triaged against Sentinel-2 and Planet imagery, then routed to the nearest trained guardian for ground-truthing. Duplicates collapse automatically.",
+    metric: "94% verification accuracy",
+  },
+  {
+    id: "02/C", t: "Respond",
+    d: "Verified threats route to district authorities and ranger units. Action logs are public and immutable.",
+    detail: "Verified incidents fan out to NEMA officers, district environment officers, and partner ranger units. Every action — dispatch, intervention, citation — is logged on a public ledger.",
+    metric: "Avg. response: 36 hours",
+  },
+  {
+    id: "02/D", t: "Track",
+    d: "Every intervention enters an open impact timeline — what was reported, what was done, what changed.",
+    detail: "Resolved cases enter a permanent timeline with before/after geotagged imagery, restoration metrics, and partner attribution. Open data, exportable as CSV or GeoJSON.",
+    metric: "1,200+ closed cases",
+  },
 ];
 
 function HowItWorks() {
   const ref = useRef<HTMLDivElement>(null);
+  const [activePhase, setActivePhase] = useState(0);
   useEffect(() => {
     if (!ref.current) return;
     const ctx = gsap.context(() => {
-      gsap.from(ref.current!.querySelectorAll(".feature-card"), {
-        y: 40, opacity: 0, stagger: 0.1, duration: 0.6, ease: "power2.out",
-        scrollTrigger: { trigger: ref.current!.querySelector(".card-grid"), start: "top 82%" },
-      });
+      gsap.fromTo(
+        ref.current!.querySelectorAll(".feature-card"),
+        { y: 30, opacity: 0 },
+        {
+          y: 0, opacity: 1, stagger: 0.08, duration: 0.6, ease: "power2.out",
+          scrollTrigger: { trigger: ref.current!.querySelector(".card-grid"), start: "top 90%", once: true },
+        }
+      );
     }, ref);
     return () => ctx.revert();
   }, []);
@@ -255,22 +280,71 @@ function HowItWorks() {
             </div>
           </div>
 
-          {/* Phases column */}
+          {/* Phases column — interactive tabs */}
           <div className="lg:col-span-7">
+            <div role="tablist" aria-label="Method phases" className="flex flex-wrap gap-2 mb-6">
+              {PHASES.map((p, i) => {
+                const isActive = i === activePhase;
+                return (
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    key={p.id}
+                    onClick={() => setActivePhase(i)}
+                    className={`px-5 py-3 rounded-full font-mono text-[10px] tracking-[0.3em] uppercase border transition-all duration-300 ${
+                      isActive
+                        ? "border-phosphor/60 bg-phosphor/10 text-phosphor shadow-[0_0_0_1px_oklch(0.83_0.19_152/0.4)]"
+                        : "border-border text-foreground/60 hover:border-phosphor/30 hover:text-foreground"
+                    }`}
+                  >
+                    <span className="mr-2 opacity-70">{p.id}</span>
+                    {p.t}
+                  </button>
+                );
+              })}
+            </div>
+
             <div className="card-grid grid sm:grid-cols-2 gap-6">
-              {PHASES.map((p) => (
-                <article
-                  key={p.id}
-                  className="feature-card frosted rounded-2xl p-8 transition-all duration-220 hover:-translate-y-2 hover:shadow-[0_24px_48px_rgba(61,219,133,0.08)] group"
-                >
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-mono text-[11px] tracking-[0.3em] text-phosphor">{p.id}</span>
-                    <span className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground uppercase">phase</span>
-                  </div>
-                  <h3 className="font-display text-3xl md:text-4xl mt-6">{p.t}</h3>
-                  <p className="mt-4 text-foreground/70 leading-relaxed">{p.d}</p>
-                </article>
-              ))}
+              {PHASES.map((p, i) => {
+                const isActive = i === activePhase;
+                return (
+                  <article
+                    key={p.id}
+                    onClick={() => setActivePhase(i)}
+                    className={`feature-card cursor-pointer frosted rounded-2xl p-8 transition-all duration-300 ${
+                      isActive
+                        ? "border border-phosphor/50 -translate-y-1 shadow-[0_24px_48px_rgba(61,219,133,0.15)]"
+                        : "border border-transparent hover:-translate-y-1 hover:border-phosphor/20"
+                    }`}
+                  >
+                    <div className="flex items-baseline justify-between">
+                      <span className="font-mono text-[11px] tracking-[0.3em] text-phosphor">{p.id}</span>
+                      <span className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground uppercase">phase</span>
+                    </div>
+                    <h3 className="font-display text-3xl md:text-4xl mt-6">{p.t}</h3>
+                    <p className="mt-4 text-foreground/70 leading-relaxed">{p.d}</p>
+                  </article>
+                );
+              })}
+            </div>
+
+            <div
+              role="tabpanel"
+              key={PHASES[activePhase].id}
+              className="mt-6 frosted rounded-2xl p-8 border border-phosphor/30"
+            >
+              <div className="flex items-baseline justify-between mb-4">
+                <div className="font-mono text-[10px] tracking-[0.3em] uppercase text-phosphor">
+                  / Detail · {PHASES[activePhase].id}
+                </div>
+                <div className="font-mono text-[10px] tracking-[0.25em] uppercase text-foreground/70">
+                  {PHASES[activePhase].metric}
+                </div>
+              </div>
+              <p className="text-foreground/85 leading-relaxed text-lg">
+                {PHASES[activePhase].detail}
+              </p>
             </div>
           </div>
         </div>
@@ -281,12 +355,12 @@ function HowItWorks() {
 
 /* ─────────── CH 03 — THE EVIDENCE ─────────── */
 const HUBS: Hub[] = [
-  { name: "Kampala", region: "Central",  status: "Critical", dotClass: "bg-destructive", x: 56, y: 70, reports: 1284 },
-  { name: "Wakiso",  region: "Central",  status: "Active",   dotClass: "bg-orange-400",  x: 52, y: 67, reports: 612 },
-  { name: "Mbarara", region: "Western",  status: "Active",   dotClass: "bg-orange-400",  x: 26, y: 84, reports: 247 },
-  { name: "Gulu",    region: "Northern", status: "Optimal",  dotClass: "bg-phosphor",    x: 51, y: 26, reports: 188 },
-  { name: "Mbale",   region: "Eastern",  status: "Active",   dotClass: "bg-orange-400",  x: 78, y: 56, reports: 154 },
-  { name: "Lira",    region: "Northern", status: "Optimal",  dotClass: "bg-phosphor",    x: 60, y: 36, reports: 132 },
+  { name: "Kampala", region: "Central",  status: "Critical", dotClass: "bg-destructive", lat:  0.3476, lng: 32.5825, reports: 1284 },
+  { name: "Wakiso",  region: "Central",  status: "Active",   dotClass: "bg-orange-400",  lat:  0.4044, lng: 32.4594, reports: 612 },
+  { name: "Mbarara", region: "Western",  status: "Active",   dotClass: "bg-orange-400",  lat: -0.6072, lng: 30.6545, reports: 247 },
+  { name: "Gulu",    region: "Northern", status: "Optimal",  dotClass: "bg-phosphor",    lat:  2.7747, lng: 32.2990, reports: 188 },
+  { name: "Mbale",   region: "Eastern",  status: "Active",   dotClass: "bg-orange-400",  lat:  1.0820, lng: 34.1750, reports: 154 },
+  { name: "Lira",    region: "Northern", status: "Optimal",  dotClass: "bg-phosphor",    lat:  2.2491, lng: 32.8997, reports: 132 },
 ];
 
 function Evidence() {
@@ -296,10 +370,14 @@ function Evidence() {
   useEffect(() => {
     if (!ref.current) return;
     const ctx = gsap.context(() => {
-      gsap.from(ref.current!.querySelectorAll(".hub-card"), {
-        y: 30, opacity: 0, stagger: 0.08, duration: 0.7, ease: "power2.out",
-        scrollTrigger: { trigger: ref.current!.querySelector(".hub-grid"), start: "top 80%" },
-      });
+      gsap.fromTo(
+        ref.current!.querySelectorAll(".hub-card"),
+        { y: 30, opacity: 0 },
+        {
+          y: 0, opacity: 1, stagger: 0.08, duration: 0.7, ease: "power2.out",
+          scrollTrigger: { trigger: ref.current!.querySelector(".hub-grid"), start: "top 90%", once: true },
+        }
+      );
     }, ref);
     return () => ctx.revert();
   }, []);

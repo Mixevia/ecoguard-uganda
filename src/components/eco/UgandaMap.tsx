@@ -1,16 +1,14 @@
+import { useEffect, useRef } from "react";
+
 export type Hub = {
   name: string;
   region: string;
   status: string;
   dotClass: string;
-  x: number;
-  y: number;
+  lat: number;
+  lng: number;
   reports: number;
 };
-
-// Simplified Uganda silhouette (stylised outline, viewBox 0 0 100 100)
-const UGANDA_PATH =
-  "M22,18 L34,12 L48,14 L60,10 L72,16 L82,22 L86,34 L82,46 L88,58 L84,72 L78,84 L66,90 L52,92 L40,90 L28,86 L18,76 L14,62 L12,48 L16,34 Z";
 
 export function UgandaMap({
   hubs,
@@ -21,50 +19,114 @@ export function UgandaMap({
   activeIdx: number;
   onSelect: (i: number) => void;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const LRef = useRef<any>(null);
+
+  // Mount Leaflet (client-only)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const L = (await import("leaflet")).default;
+      // @ts-ignore – inject CSS once
+      if (!document.getElementById("leaflet-css")) {
+        const link = document.createElement("link");
+        link.id = "leaflet-css";
+        link.rel = "stylesheet";
+        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        document.head.appendChild(link);
+      }
+      if (cancelled || !containerRef.current || mapRef.current) return;
+      LRef.current = L;
+
+      const map = L.map(containerRef.current, {
+        center: [1.3733, 32.2903],
+        zoom: 7,
+        zoomControl: false,
+        attributionControl: false,
+        scrollWheelZoom: false,
+      });
+      mapRef.current = map;
+
+      L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        { maxZoom: 18 }
+      ).addTo(map);
+
+      L.control.attribution({ prefix: false })
+        .addAttribution("&copy; OpenStreetMap &copy; CARTO")
+        .addTo(map);
+    })();
+    return () => {
+      cancelled = true;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
+  // Sync markers with hubs / activeIdx
+  useEffect(() => {
+    const L = LRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+
+    markersRef.current.forEach((m) => m.remove());
+    markersRef.current = [];
+
+    hubs.forEach((h, i) => {
+      const isActive = i === activeIdx;
+      const size = isActive ? 22 : 14;
+      const icon = L.divIcon({
+        className: "ecoguard-pin",
+        html: `
+          <div style="position:relative;width:${size}px;height:${size}px;">
+            <div style="position:absolute;inset:0;border-radius:9999px;background:oklch(0.83 0.19 152 / 0.25);animation:breathe 2.4s ease-in-out infinite;"></div>
+            <div style="position:absolute;inset:25%;border-radius:9999px;background:oklch(0.83 0.19 152);box-shadow:0 0 12px oklch(0.83 0.19 152 / 0.8);"></div>
+          </div>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+      });
+
+      const marker = L.marker([h.lat, h.lng], { icon })
+        .addTo(map)
+        .bindTooltip(
+          `<span style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;">${h.name}</span>`,
+          {
+            permanent: true,
+            direction: "right",
+            offset: [10, 0],
+            className: "ecoguard-tip",
+          }
+        )
+        .on("click", () => onSelect(i));
+
+      markersRef.current.push(marker);
+    });
+  }, [hubs, activeIdx, onSelect]);
+
   return (
     <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden frosted">
-      <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <radialGradient id="ug-fill" cx="50%" cy="40%" r="70%">
-            <stop offset="0%" stopColor="oklch(0.32 0.06 152 / 0.55)" />
-            <stop offset="100%" stopColor="oklch(0.18 0.02 160 / 0.2)" />
-          </radialGradient>
-          <pattern id="ug-grid" width="6" height="6" patternUnits="userSpaceOnUse">
-            <path d="M 6 0 L 0 0 0 6" fill="none" stroke="oklch(0.83 0.19 152 / 0.08)" strokeWidth="0.2" />
-          </pattern>
-        </defs>
-        <rect width="100" height="100" fill="url(#ug-grid)" />
-        <path d={UGANDA_PATH} fill="url(#ug-fill)" stroke="oklch(0.83 0.19 152 / 0.55)" strokeWidth="0.5" />
-        {hubs.map((h, i) =>
-          hubs.slice(i + 1).map((h2) => (
-            <line
-              key={`${h.name}-${h2.name}`}
-              x1={h.x} y1={h.y} x2={h2.x} y2={h2.y}
-              stroke="oklch(0.83 0.19 152 / 0.15)" strokeWidth="0.2" strokeDasharray="0.8 0.8"
-            />
-          ))
-        )}
-        {hubs.map((h, i) => {
-          const isActive = i === activeIdx;
-          return (
-            <g key={h.name} className="cursor-pointer" onClick={() => onSelect(i)}>
-              <circle cx={h.x} cy={h.y} r={isActive ? 5 : 3.5} fill="oklch(0.83 0.19 152 / 0.18)">
-                <animate attributeName="r" values={`${isActive ? 4 : 2.6};${isActive ? 6.5 : 4.5};${isActive ? 4 : 2.6}`} dur="2.4s" repeatCount="indefinite" />
-              </circle>
-              <circle cx={h.x} cy={h.y} r={isActive ? 1.6 : 1.1} fill="oklch(0.83 0.19 152)" />
-              <text
-                x={h.x + 2.2} y={h.y - 1.6}
-                fontSize={isActive ? 2.6 : 2.1}
-                fill={isActive ? "oklch(0.94 0.13 152)" : "oklch(0.94 0.012 150 / 0.7)"}
-                fontFamily="var(--font-mono)"
-                style={{ pointerEvents: "none", letterSpacing: "0.12em", textTransform: "uppercase" }}
-              >
-                {h.name}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
+      <div ref={containerRef} className="absolute inset-0" />
+      <style>{`
+        .ecoguard-tip {
+          background: oklch(0.16 0.012 160 / 0.85) !important;
+          color: oklch(0.94 0.012 150) !important;
+          border: 1px solid oklch(0.83 0.19 152 / 0.3) !important;
+          box-shadow: none !important;
+          padding: 2px 6px !important;
+        }
+        .ecoguard-tip::before { display: none !important; }
+        .leaflet-container { background: oklch(0.16 0.012 160) !important; }
+        .leaflet-control-attribution {
+          background: oklch(0.16 0.012 160 / 0.7) !important;
+          color: oklch(0.6 0.012 150) !important;
+          font-size: 9px !important;
+        }
+        .leaflet-control-attribution a { color: oklch(0.83 0.19 152) !important; }
+      `}</style>
     </div>
   );
 }
