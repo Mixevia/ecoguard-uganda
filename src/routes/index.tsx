@@ -10,6 +10,11 @@ import { ChapterHeading } from "@/components/eco/ChapterHeading";
 import { StatCounter } from "@/components/eco/StatCounter";
 import { UgandaMap, type Hub } from "@/components/eco/UgandaMap";
 
+import heroImg from "@/assets/eco-hero.jpg";
+import crisisImg from "@/assets/eco-crisis.jpg";
+import fieldImg from "@/assets/eco-field.jpg";
+import goldenImg from "@/assets/eco-golden.jpg";
+
 if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
 export const Route = createFileRoute("/")({
@@ -21,10 +26,10 @@ export const Route = createFileRoute("/")({
  * If a value is set, it takes priority over the CSS gradient placeholder.
  */
 const PHOTOS = {
-  hero: "" as string,         // Aerial of a threatened wetland or forest edge
-  crisis: "" as string,       // Before/after of degradation (or satellite comparison)
-  field: "" as string,        // Person with a phone in a Kampala park / field
-  golden: "" as string,       // Golden-hour Ugandan landscape
+  hero: heroImg,
+  crisis: crisisImg,
+  field: fieldImg,
+  golden: goldenImg,
 };
 
 /* ─────────── CH 00 — HERO ─────────── */
