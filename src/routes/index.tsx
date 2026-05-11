@@ -355,12 +355,12 @@ function HowItWorks() {
 
 /* ─────────── CH 03 — THE EVIDENCE ─────────── */
 const HUBS: Hub[] = [
-  { name: "Kampala", region: "Central",  status: "Critical", dotClass: "bg-destructive", x: 56, y: 70, reports: 1284 },
-  { name: "Wakiso",  region: "Central",  status: "Active",   dotClass: "bg-orange-400",  x: 52, y: 67, reports: 612 },
-  { name: "Mbarara", region: "Western",  status: "Active",   dotClass: "bg-orange-400",  x: 26, y: 84, reports: 247 },
-  { name: "Gulu",    region: "Northern", status: "Optimal",  dotClass: "bg-phosphor",    x: 51, y: 26, reports: 188 },
-  { name: "Mbale",   region: "Eastern",  status: "Active",   dotClass: "bg-orange-400",  x: 78, y: 56, reports: 154 },
-  { name: "Lira",    region: "Northern", status: "Optimal",  dotClass: "bg-phosphor",    x: 60, y: 36, reports: 132 },
+  { name: "Kampala", region: "Central",  status: "Critical", dotClass: "bg-destructive", lat:  0.3476, lng: 32.5825, reports: 1284 },
+  { name: "Wakiso",  region: "Central",  status: "Active",   dotClass: "bg-orange-400",  lat:  0.4044, lng: 32.4594, reports: 612 },
+  { name: "Mbarara", region: "Western",  status: "Active",   dotClass: "bg-orange-400",  lat: -0.6072, lng: 30.6545, reports: 247 },
+  { name: "Gulu",    region: "Northern", status: "Optimal",  dotClass: "bg-phosphor",    lat:  2.7747, lng: 32.2990, reports: 188 },
+  { name: "Mbale",   region: "Eastern",  status: "Active",   dotClass: "bg-orange-400",  lat:  1.0820, lng: 34.1750, reports: 154 },
+  { name: "Lira",    region: "Northern", status: "Optimal",  dotClass: "bg-phosphor",    lat:  2.2491, lng: 32.8997, reports: 132 },
 ];
 
 function Evidence() {
@@ -370,10 +370,14 @@ function Evidence() {
   useEffect(() => {
     if (!ref.current) return;
     const ctx = gsap.context(() => {
-      gsap.from(ref.current!.querySelectorAll(".hub-card"), {
-        y: 30, opacity: 0, stagger: 0.08, duration: 0.7, ease: "power2.out",
-        scrollTrigger: { trigger: ref.current!.querySelector(".hub-grid"), start: "top 80%" },
-      });
+      gsap.fromTo(
+        ref.current!.querySelectorAll(".hub-card"),
+        { y: 30, opacity: 0 },
+        {
+          y: 0, opacity: 1, stagger: 0.08, duration: 0.7, ease: "power2.out",
+          scrollTrigger: { trigger: ref.current!.querySelector(".hub-grid"), start: "top 90%", once: true },
+        }
+      );
     }, ref);
     return () => ctx.revert();
   }, []);
