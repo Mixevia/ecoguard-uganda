@@ -578,11 +578,17 @@ function Footer() {
             / Uganda
           </span>
         </div>
-        <nav className="flex flex-wrap gap-x-8 gap-y-3 text-[12px] text-foreground/60 font-mono tracking-wider uppercase">
+        <nav className="flex flex-wrap gap-x-8 gap-y-3 text-[12px] text-foreground/60 font-mono tracking-wider uppercase items-center">
           <a className="link-sweep" href="#crisis">Crisis</a>
           <a className="link-sweep" href="#how">Method</a>
           <a className="link-sweep" href="#evidence">Evidence</a>
           <a className="link-sweep" href="#join">Join</a>
+          <Link
+            to="/dashboard"
+            className="btn-sweep px-4 py-2 text-[11px] tracking-[0.2em] rounded-sm"
+          >
+            Open Dashboard →
+          </Link>
         </nav>
       </div>
       <div className="max-w-7xl mx-auto mt-10 flex flex-col md:flex-row justify-between gap-2 font-mono text-[10px] tracking-[0.25em] uppercase text-muted-foreground">
