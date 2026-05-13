@@ -122,23 +122,28 @@ export const Learn: React.FC = () => {
             {/* Articles List */}
             <div className="flex flex-col gap-6">
               {filteredArticles.map((article, idx) => (
-                <MotionSection 
+                <MotionSection
                   key={article.id}
                   delay={idx * 0.1}
-                  onClick={() => setSelectedArticle(article)}
-                  className="flex gap-4 group cursor-pointer active:scale-[0.98] transition-all"
+                  className="group"
                 >
-                  <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-sm">
-                    <img src={article.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
-                  </div>
-                  <div className="flex flex-col justify-center gap-1 min-w-0">
-                    <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">{article.category}</span>
-                    <h3 className="text-sm font-black text-on-surface leading-tight line-clamp-2">{article.title}</h3>
-                    <div className="flex items-center gap-3 text-[10px] text-outline font-bold">
-                      <span className="flex items-center gap-1"><Clock size={10} /> {article.readTime}</span>
-                      <span className="flex items-center gap-1"><User size={10} /> {article.author}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedArticle(article)}
+                    className="w-full text-left flex gap-4 cursor-pointer active:scale-[0.98] transition-all"
+                  >
+                    <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-sm">
+                      <img src={article.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
                     </div>
-                  </div>
+                    <div className="flex flex-col justify-center gap-1 min-w-0">
+                      <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">{article.category}</span>
+                      <h3 className="text-sm font-black text-on-surface leading-tight line-clamp-2">{article.title}</h3>
+                      <div className="flex items-center gap-3 text-[10px] text-outline font-bold">
+                        <span className="flex items-center gap-1"><Clock size={10} /> {article.readTime}</span>
+                        <span className="flex items-center gap-1"><User size={10} /> {article.author}</span>
+                      </div>
+                    </div>
+                  </button>
                 </MotionSection>
               ))}
             </div>
