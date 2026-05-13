@@ -16,7 +16,6 @@ export const InteractiveMap: React.FC = () => {
       zoom: 12,
       pitch: 45, // 3D effect
       bearing: -17.6,
-      antialias: true
     });
 
     map.current.on('load', () => {
