@@ -17,7 +17,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, setScreen })
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface-container-lowest border-t border-outline-variant shadow-lg h-[98px] pb-[34px] flex justify-around items-center px-2">
+    <nav className="absolute bottom-0 left-0 right-0 z-50 bg-surface-container-lowest border-t border-outline-variant shadow-lg h-[98px] pb-[34px] flex justify-around items-center px-2">
       {navItems.map(({ id, label, Icon, badge }) => {
         const isActive = activeScreen === id;
         return (
